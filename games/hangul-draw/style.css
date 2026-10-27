@@ -1,0 +1,49 @@
+.prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 16px;
+}
+.prompt-text { min-height: 2.2rem; text-align: center; }
+.prompt-text .roman { font-size: 1.6rem; font-weight: 700; color: var(--blue); }
+
+.stage {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.pad {
+  width: min(340px, 100%);
+  aspect-ratio: 1;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  touch-action: none;
+  cursor: crosshair;
+}
+.pad.good { border-color: var(--good); }
+.pad.bad { border-color: var(--bad); }
+
+.answer {
+  width: min(160px, 40%);
+  text-align: center;
+}
+.answer .glyph { font-family: var(--font-ko); font-size: 6rem; font-weight: 700; line-height: 1.1; }
+.answer .meta { color: var(--muted); font-size: 0.9rem; }
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 520px;
+  margin: 16px auto 0;
+}
+.tools .spacer { flex: 1; }
+
+.feedback { text-align: center; min-height: 1.6em; margin: 12px 0 0; font-weight: 600; }
+
+#summary { margin-top: 20px; }

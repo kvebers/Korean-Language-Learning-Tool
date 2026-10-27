@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Korean Learning Games</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <style>
+    .hero { padding: 28px 0 8px; }
+    .hero h1 { margin: 0 0 4px; font-size: 1.9rem; }
+    .hero p { margin: 0; color: var(--muted); }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 18px 0 28px; }
+    h2 { font-size: 1.15rem; margin: 32px 0 12px; }
+    .games { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .game { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; transition: border-color 0.15s; }
+    .game:hover { border-color: var(--accent); }
+    .game h3 { margin: 0; font-size: 1.1rem; }
+    .game h3 .ko { color: var(--muted); font-weight: 500; font-size: 0.95rem; margin-left: 6px; }
+    .game p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .tag { align-self: flex-start; font-size: 0.75rem; font-weight: 600; color: var(--accent); }
+    .chart { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+    .tile { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; padding: 8px 4px; cursor: pointer; font: inherit; text-align: center; }
+    .tile:hover { border-color: var(--accent); }
+    .tile .c { display: block; font-family: var(--font-ko); font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
+    .tile .r { display: block; font-size: 0.75rem; color: var(--muted); }
+    .chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Korean Learning Games <span class="ko muted">한국어</span></h1>
+      <p>Small games for learning Korean, starting with the Hangul alphabet.</p>
+    </section>
+
+    <div class="bar">
+      <a class="btn" id="progress-link" href="progress/index.html" hidden>📈 My progress</a>
+      <span class="muted" id="mode"></span>
+    </div>
+
+    <h2>Tier 1 · Hangul alphabet <span class="ko muted">한글 자모</span></h2>
+    <div class="games" id="games"></div>
+
+    <div class="chart-head">
+      <h2>Alphabet chart</h2>
+      <span class="muted">Tap a letter to hear it</span>
+    </div>
+    <div id="notice"></div>
+    <h3 class="muted">Consonants · 자음</h3>
+    <div class="chart" id="consonants"></div>
+    <h3 class="muted">Vowels · 모음</h3>
+    <div class="chart" id="vowels"></div>
+  </main>
+
+  <script src="shared/config.js"></script>
+  <script src="shared/hangul.js"></script>
+  <script src="shared/sound.js"></script>
+  <script src="shared/progress.js"></script>
+  <script src="shared/ui.js"></script>
+  <script src="shared/games.js"></script>
+  <script>
+    (function () {
+      const { hangul, speech, progress, ui } = KLT;
+
+      document.getElementById("games").innerHTML = KLT.GAMES.map((g) => `
+        <a class="game panel" href="games/${ui.esc(g.id)}/index.html">
+          <span class="tag">${ui.esc(g.tier)}</span>
+          <h3>${ui.esc(g.title)}<span class="ko">${ui.esc(g.ko)}</span></h3>
+          <p>${ui.esc(g.desc)}</p>
+        </a>`).join("");
+
+      document.getElementById("progress-link").hidden = !progress.enabled;
+      document.getElementById("mode").textContent = progress.enabled
+        ? "Local mode: your progress is saved."
+        : "Run it locally (make serve) to track your progress.";
+
+      const tile = (l) => `<button class="tile" data-say="${ui.esc(l.say)}" title="${ui.esc(l.name)}">
+        <span class="c">${ui.esc(l.char)}</span><span class="r">${ui.esc(l.roman)}</span></button>`;
+      const basics = hangul.pool({ tier: "1" });
+      document.getElementById("consonants").innerHTML = basics.filter((l) => l.type === "consonant").map(tile).join("");
+      document.getElementById("vowels").innerHTML = basics.filter((l) => l.type === "vowel").map(tile).join("");
+      document.querySelectorAll("[data-say]").forEach((b) => b.addEventListener("click", () => speech.say(b.dataset.say)));
+      ui.voiceNotice(document.getElementById("notice"));
+    })();
+  </script>
+</body>
+</html>

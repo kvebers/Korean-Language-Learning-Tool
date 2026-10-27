@@ -1,0 +1,30 @@
+.letter {
+  font-family: var(--font-ko);
+  font-size: 8rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  margin: 8px 0;
+}
+.reveal { text-align: center; color: var(--muted); margin-bottom: 8px; }
+.reveal b { color: var(--blue); font-size: 1.2rem; }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.mic { font-size: 1.1rem; padding: 12px 26px; }
+.mic.listening { animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse {
+  50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 25%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mic.listening { animation: none; outline: 3px solid var(--accent); outline-offset: 3px; }
+}
+
+.feedback { text-align: center; min-height: 1.6em; margin: 14px 0 0; font-weight: 600; }
+
+#summary { margin-top: 20px; }

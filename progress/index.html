@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Progress</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    h2 { font-size: 1.1rem; margin: 28px 0 12px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.85rem; color: var(--muted); margin-bottom: 10px; }
+    .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+    .cell { border: 2px solid var(--line); border-radius: 10px; padding: 6px 4px; text-align: center; background: var(--panel); }
+    .cell .c { font-family: var(--font-ko); font-size: 1.7rem; font-weight: 700; line-height: 1.2; }
+    .cell .n { font-size: 0.75rem; color: var(--muted); }
+    .learned { border-color: var(--good); background: var(--good-bg); }
+    .learning { border-color: #d9a400; }
+    .struggling { border-color: var(--bad); background: var(--bad-bg); }
+    .unseen { opacity: 0.55; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
+    td.ko { font-size: 1.15rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../index.html">← All games</a>
+    <h1>My Progress <span class="ko">학습 기록</span></h1>
+  </header>
+
+  <main class="wrap" id="app">
+    <p class="muted">Loading…</p>
+  </main>
+
+  <script src="../shared/config.js"></script>
+  <script src="../shared/hangul.js"></script>
+  <script src="../shared/progress.js"></script>
+  <script src="../shared/ui.js"></script>
+  <script src="../shared/games.js"></script>
+  <script>
+    (async function () {
+      const { hangul, progress, ui } = KLT;
+      const app = document.getElementById("app");
+      const esc = ui.esc;
+
+      if (!progress.enabled) {
+        app.innerHTML = `<p class="notice">Progress is only tracked in the local version. Start it with <b>make serve</b>.</p>`;
+        return;
+      }
+
+      let data;
+      try {
+        data = await (await fetch("/api/progress")).json();
+      } catch {
+        app.innerHTML = `<p class="notice">Couldn't reach the local server.</p>`;
+        return;
+      }
+
+      const items = data.items || {};
+      const gameTitle = (id) => (KLT.GAMES.find((g) => g.id === id) || { title: id }).title;
+      const when = (ts) => new Date(ts).toLocaleString();
+      const status = (s) => !s ? "unseen" : s.learned ? "learned" : s.wrong > s.correct ? "struggling" : "learning";
+
+      const tier1 = hangul.pool({ tier: "1" });
+      const learned1 = tier1.filter((l) => items[l.char]?.learned).length;
+      const totals = Object.values(items).reduce((t, s) => ({ c: t.c + s.correct, w: t.w + s.wrong }), { c: 0, w: 0 });
+      const answered = totals.c + totals.w;
+
+      const cell = (l) => {
+        const s = items[l.char];
+        const acc = s && s.correct + s.wrong ? `${Math.round((s.correct / (s.correct + s.wrong)) * 100)}%` : "–";
+        return `<div class="cell ${status(s)}" title="${esc(l.name)} · ${esc(l.roman)}">
+          <div class="c">${esc(l.char)}</div>
+          <div class="n">${s ? `${acc} · ${s.correct}✓ ${s.wrong}✗` : "new"}</div></div>`;
+      };
+
+      const mostMissed = Object.entries(items)
+        .filter(([, s]) => s.wrong > 0)
+        .sort((a, b) => b[1].wrong - a[1].wrong)
+        .slice(0, 10)
+        .map(([char]) => hangul.byChar(char))
+        .filter(Boolean);
+
+      const mistakes = (data.mistakes || []).slice(-25).reverse();
+      const sessions = (data.sessions || []).slice(-15).reverse();
+
+      app.innerHTML = `
+        <dl class="stats">
+          <div><dt>Alphabet learned</dt><dd>${learned1} / ${tier1.length}</dd></div>
+          <div><dt>Answers</dt><dd>${answered}</dd></div>
+          <div><dt>Accuracy</dt><dd>${answered ? Math.round((totals.c / answered) * 100) + "%" : "–"}</dd></div>
+          <div><dt>Rounds played</dt><dd>${(data.sessions || []).length}</dd></div>
+        </dl>
+        <p class="muted">A letter counts as <b>learned</b> after ${data.learnedStreak || 3} correct answers in a row; a mistake puts it back to learning.</p>
+
+        ${[1, 2].map((tier) => `
+          <h2>${esc(hangul.TIERS[tier])}</h2>
+          ${tier === 1 ? `<div class="legend"><span><i style="background:var(--good-bg);border:2px solid var(--good)"></i>learned</span>
+            <span><i style="border:2px solid #d9a400"></i>learning</span><span><i style="background:var(--bad-bg);border:2px solid var(--bad)"></i>struggling</span>
+            <span><i style="border:2px solid var(--line);opacity:.55"></i>not seen yet</span></div>` : ""}
+          <div class="grid">${hangul.pool({ tier: String(tier) }).map(cell).join("")}</div>`).join("")}
+
+        <h2>Most missed</h2>
+        ${mostMissed.length ? `<div class="chips">${mostMissed.map(ui.letterChip).join("")}</div>` : `<p class="muted">Nothing yet.</p>`}
+
+        <h2>Recent mistakes</h2>
+        ${mistakes.length ? `<div class="table-wrap"><table>
+          <tr><th>When</th><th>Game</th><th>Letter</th><th>Your answer</th></tr>
+          ${mistakes.map((m) => `<tr><td>${esc(when(m.ts))}</td><td>${esc(gameTitle(m.game))}</td>
+            <td class="ko">${esc(m.item)}</td><td class="ko">${esc(m.answer ?? "–")}</td></tr>`).join("")}
+        </table></div>` : `<p class="muted">No mistakes recorded.</p>`}
+
+        <h2>Recent rounds</h2>
+        ${sessions.length ? `<div class="table-wrap"><table>
+          <tr><th>When</th><th>Game</th><th>Score</th><th>Time</th><th>Missed</th></tr>
+          ${sessions.map((s) => `<tr><td>${esc(when(s.ts))}</td><td>${esc(gameTitle(s.game))}</td>
+            <td>${esc(s.score)} / ${esc(s.total)}</td><td>${esc(ui.formatTime(s.durationMs || 0))}</td>
+            <td class="ko">${esc((s.missed || []).join(" ") || "–")}</td></tr>`).join("")}
+        </table></div>` : `<p class="muted">No rounds played yet.</p>`}`;
+
+      app.querySelectorAll("[data-say]").forEach((b) => b.addEventListener("click", () => {
+        if (window.speechSynthesis) {
+          const u = new SpeechSynthesisUtterance(b.dataset.say);
+          u.lang = "ko-KR";
+          speechSynthesis.speak(u);
+        }
+      }));
+    })();
+  </script>
+</body>
+</html>

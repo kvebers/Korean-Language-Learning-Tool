@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sound Quiz · Hangul</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Sound Quiz <span class="ko">소리 퀴즈</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>You'll hear a letter's Korean name. Pick the matching character out of four.
+        Keys <b>1–4</b> answer, <b>Space</b> replays the sound.</p>
+      <button class="btn primary big" id="start-btn">Start round</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Question <b id="qnum">1 / 10</b></span>
+        <span>Score <b id="score">0</b></span>
+      </div>
+      <div class="prompt">
+        <button class="btn replay" id="replay" title="Play again (Space)">🔊 Play sound</button>
+        <div id="prompt-text" class="prompt-text"></div>
+      </div>
+      <div id="options" class="options"></div>
+      <p id="feedback" class="feedback" aria-live="polite"></p>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

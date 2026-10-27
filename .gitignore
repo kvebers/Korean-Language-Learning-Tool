@@ -1,0 +1,6 @@
+# local progress (local version only)
+data/
+# static build output
+dist/
+__pycache__/
+.DS_Store

@@ -1,0 +1,172 @@
+:root {
+  --bg: #f6f4ef;
+  --panel: #ffffff;
+  --ink: #1d1d1f;
+  --muted: #6b6b72;
+  --line: #e3dfd6;
+  --accent: #c8102e;
+  --accent-ink: #ffffff;
+  --blue: #003478;
+  --good: #2e7d32;
+  --good-bg: #e6f4e7;
+  --bad: #c62828;
+  --bad-bg: #fbe7e7;
+  --warn-bg: #fff4d6;
+  --card-back: #003478;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-ko: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans CJK KR", sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131316;
+    --panel: #1d1d22;
+    --ink: #ececf1;
+    --muted: #9b9ba5;
+    --line: #2e2e36;
+    --accent: #ff5a6e;
+    --accent-ink: #1a0005;
+    --blue: #7aa5ff;
+    --good: #6cc070;
+    --good-bg: #1d3320;
+    --bad: #ff6b6b;
+    --bad-bg: #3a1d1d;
+    --warn-bg: #3a3218;
+    --card-back: #23396b;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  line-height: 1.5;
+}
+
+a { color: var(--blue); }
+
+.ko, .hangul { font-family: var(--font-ko); }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.topbar h1 { margin: 0; font-size: 1.2rem; }
+.topbar h1 .ko { color: var(--muted); font-weight: 500; margin-left: 6px; }
+.topbar .back { text-decoration: none; color: var(--muted); white-space: nowrap; }
+.topbar .back:hover { color: var(--ink); }
+
+.wrap { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.muted { color: var(--muted); }
+
+.notice {
+  background: var(--warn-bg);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  margin: 0 0 16px;
+}
+
+/* settings bar */
+.settings { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 16px; }
+.settings label { display: flex; flex-direction: column; font-size: 0.78rem; color: var(--muted); gap: 2px; }
+.settings select {
+  font: inherit;
+  font-size: 0.92rem;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+/* buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn.big { font-size: 1.1rem; padding: 12px 22px; }
+
+.hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-bottom: 14px;
+  color: var(--muted);
+}
+.hud b { color: var(--ink); }
+.hud .spacer { flex: 1; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+/* summary */
+.summary h2 { margin-top: 0; }
+.stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 12px; }
+.stats div { background: var(--bg); border-radius: 10px; padding: 8px 14px; min-width: 96px; }
+.stats dt { font-size: 0.78rem; color: var(--muted); }
+.stats dd { margin: 0; font-size: 1.3rem; font-weight: 700; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+.chip-char { font-family: var(--font-ko); font-size: 1.3rem; font-weight: 700; }
+.chip-roman { color: var(--muted); font-size: 0.85rem; }
+
+.start { text-align: center; padding: 40px 20px; }
+.start p { max-width: 460px; margin: 0 auto 20px; }
+
+.feedback-good { color: var(--good); }
+.feedback-bad { color: var(--bad); }
+
+@media (max-width: 520px) {
+  .topbar h1 { font-size: 1.05rem; }
+  .topbar h1 .ko { display: none; }
+}

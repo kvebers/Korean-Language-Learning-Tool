@@ -1,0 +1,48 @@
+.prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 22px;
+}
+.replay { font-size: 1.15rem; padding: 12px 26px; }
+.prompt-text { min-height: 2.6rem; text-align: center; }
+.prompt-text .name { font-family: var(--font-ko); font-size: 2.2rem; font-weight: 700; }
+.prompt-text .roman { font-size: 1.6rem; font-weight: 700; color: var(--blue); }
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.option {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius);
+  border: 2px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ko);
+  font-size: 3.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.option:hover:not(:disabled) { border-color: var(--muted); }
+.option .key {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.option.right { border-color: var(--good); background: var(--good-bg); }
+.option.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.option:disabled { cursor: default; }
+
+.feedback { text-align: center; min-height: 1.6em; margin: 16px 0 0; font-weight: 600; }
+
+#summary { margin-top: 20px; }

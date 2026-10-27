@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Say the Letter · Hangul</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Say the Letter <span class="ko">말하기</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>A letter appears. Say its sound out loud: the syllable with ㅏ for consonants
+        (ㄱ → <b class="ko">가</b>), with ㅇ for vowels (ㅓ → <b class="ko">어</b>), or the letter's name
+        (<b class="ko">기역</b>).</p>
+      <p id="mode-note" class="muted"></p>
+      <button class="btn primary big" id="start-btn">Start round</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Letter <b id="qnum">1 / 10</b></span>
+        <span>Score <b id="score">0</b></span>
+        <span class="spacer"></span>
+        <span id="tries" class="muted"></span>
+      </div>
+
+      <div id="letter" class="letter"></div>
+      <div id="reveal" class="reveal" hidden></div>
+
+      <div class="controls">
+        <button class="btn primary mic" id="mic">🎤 Speak</button>
+        <button class="btn" id="listen">🔊 Hear it</button>
+      </div>
+      <p id="feedback" class="feedback" aria-live="polite"></p>
+
+      <div id="self" class="controls" hidden>
+        <button class="btn" id="self-miss">✗ I missed it</button>
+        <button class="btn primary" id="self-ok">✓ I said it right</button>
+      </div>
+      <div id="after" class="controls" hidden>
+        <button class="btn" id="override" hidden>I said it right, count it</button>
+        <button class="btn primary" id="next">Next →</button>
+      </div>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="match.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

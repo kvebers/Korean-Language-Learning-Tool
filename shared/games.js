@@ -12,7 +12,7 @@ KLT.GAMES = [
     id: "hangul-sound-quiz",
     title: "Sound Quiz",
     ko: "소리 퀴즈",
-    desc: "Hear a letter's Korean name and pick the right character out of four.",
+    desc: "Hear a sound and see it written in English, then pick the right character out of four.",
     tier: "Tier 1 · Alphabet",
   },
   {

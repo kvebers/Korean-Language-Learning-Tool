@@ -17,7 +17,7 @@ The 14 basic consonants and 10 basic vowels. (Tier 2, double consonants and comp
 | Game | Folder | |
 | --- | --- | --- |
 | Sound Match 짝 맞추기 | `games/hangul-sound-match` | Sound cards (🔊 + English pronunciation, or sound only) on one side, Hangul letters on the other, all face up. Match them. |
-| Sound Quiz 소리 퀴즈 | `games/hangul-sound-quiz` | Hear a letter's Korean name (기역, 니은…), pick the right character out of 4. |
+| Sound Quiz 소리 퀴즈 | `games/hangul-sound-quiz` | Hear a sound and see its English pronunciation (or sound only), pick the right character out of 4. |
 | Draw the Letter 글자 쓰기 | `games/hangul-draw` | Hear or read a sound, draw the letter. The drawing is checked automatically. |
 | Say the Letter 말하기 | `games/hangul-speak` | See a letter, pronounce it. Checked with speech recognition, or self-check by comparing with the native sound. |
 

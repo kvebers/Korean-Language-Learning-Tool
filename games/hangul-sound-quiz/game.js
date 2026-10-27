@@ -1,4 +1,4 @@
-// Sound Quiz: hear a letter's Korean name, pick the right character out of four.
+// Sound Quiz: hear a letter (and see its English pronunciation), pick the right character out of four.
 (function () {
   const { hangul, speech, sfx, progress, ui } = KLT;
   const GAME = "hangul-sound-quiz";
@@ -31,9 +31,8 @@
       {
         key: "prompt",
         label: "Prompt",
-        value: "name",
+        value: "roman",
         options: [
-          ["name", "Sound + Korean name"],
           ["roman", "Sound + English pronunciation"],
           ["sound", "Sound only"],
         ],
@@ -98,9 +97,10 @@
     els.feedback.textContent = "";
     els.feedback.className = "feedback";
 
-    if (settings.prompt === "name") els.promptText.innerHTML = `<span class="name">${ui.esc(current.name)}</span>`;
-    else if (settings.prompt === "roman") els.promptText.innerHTML = `<span class="roman">${ui.esc(current.roman)}</span>`;
-    else els.promptText.innerHTML = `<span class="muted">Listen…</span>`;
+    els.promptText.innerHTML =
+      settings.prompt === "roman"
+        ? `<span class="roman">${ui.esc(current.roman)}</span>`
+        : `<span class="muted">Listen…</span>`;
 
     const options = hangul.shuffle([current, ...distractors(current)]);
     els.options.innerHTML = "";
@@ -116,7 +116,7 @@
   }
 
   function speak() {
-    if (current) speech.say(current.name);
+    if (current) speech.say(current.say);
   }
 
   function answer(letter, btn) {
@@ -131,14 +131,14 @@
     if (correct) {
       score++;
       sfx.good();
-      els.feedback.textContent = `${current.char} · ${current.name} · ${current.roman}`;
+      els.feedback.textContent = `${current.char} · ${current.roman} · ${current.name}`;
       els.feedback.classList.add("feedback-good");
     } else {
       btn.classList.add("wrong");
       missed.push(current);
       sfx.bad();
-      setTimeout(() => speech.say(current.name), 350);
-      els.feedback.textContent = `That was ${letter.char} (${letter.name}). The answer is ${current.char} · ${current.name} · ${current.roman}`;
+      setTimeout(() => speech.say(current.say), 350);
+      els.feedback.textContent = `That was ${letter.char} (${letter.roman}). The answer is ${current.char} · ${current.roman} · ${current.name}`;
       els.feedback.classList.add("feedback-bad");
     }
     els.score.textContent = score;

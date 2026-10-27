@@ -7,7 +7,6 @@
 }
 .replay { font-size: 1.15rem; padding: 12px 26px; }
 .prompt-text { min-height: 2.6rem; text-align: center; }
-.prompt-text .name { font-family: var(--font-ko); font-size: 2.2rem; font-weight: 700; }
 .prompt-text .roman { font-size: 1.6rem; font-weight: 700; color: var(--blue); }
 
 .options {

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word Library</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    .filters { display: flex; flex-wrap: wrap; gap: 10px 14px; margin: 16px 0; }
+    .filters label { display: flex; flex-direction: column; font-size: 0.78rem; color: var(--muted); gap: 2px; }
+    .filters select, .filters input { font: inherit; font-size: 0.92rem; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+    .filters input { min-width: 200px; }
+    .unlock { margin: 6px 0 0; }
+    .meter { height: 8px; background: var(--bg); border-radius: 99px; overflow: hidden; margin: 6px 0 4px; max-width: 520px; }
+    .meter i { display: block; height: 100%; background: var(--good); }
+    .levels { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
+    .levels div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 12px; font-size: 0.88rem; }
+    .list { display: flex; flex-direction: column; gap: 6px; }
+    .row { display: grid; grid-template-columns: 34px 1.2fr 2fr auto; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; }
+    .row.locked { opacity: 0.55; }
+    .row .em { font-size: 1.4rem; text-align: center; }
+    .row .k { font-family: var(--font-ko); font-size: 1.25rem; font-weight: 700; cursor: pointer; }
+    .row .k small { display: block; font-family: var(--font); font-size: 0.72rem; font-weight: 400; color: var(--muted); }
+    .row .m { font-size: 0.92rem; }
+    .row .m small { color: var(--muted); }
+    .row .s { text-align: right; font-size: 0.75rem; color: var(--muted); display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+    .more { margin: 14px auto; display: block; }
+    @media (max-width: 560px) { .row { grid-template-columns: 30px 1fr auto; } .row .m { grid-column: 2 / 4; grid-row: 2; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../index.html">← All games</a>
+    <h1>Word Library <span class="ko">단어장</span></h1>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <div id="head"><p class="muted">Loading…</p></div>
+    </section>
+    <div class="filters">
+      <label><span>Search</span><input id="q" placeholder="Korean or English"></label>
+      <label><span>Level</span><select id="level"><option value="all">All levels</option><option>A1</option><option>A2</option><option>B1</option><option>B2</option></select></label>
+      <label><span>Topic</span><select id="topic"><option value="all">All topics</option></select></label>
+      <label><span>Status</span><select id="status">
+        <option value="all">Everything</option><option value="unlocked">Unlocked</option><option value="new">New (not met yet)</option>
+        <option value="learning">Learning</option><option value="struggling">Struggling</option><option value="known">Remembered</option>
+        <option value="mastered">Mastered</option><option value="due">Due for review</option><option value="locked">Locked</option></select></label>
+    </div>
+    <p class="muted" id="count"></p>
+    <div class="list" id="list"></div>
+    <button class="btn more" id="more" hidden>Show more</button>
+  </main>
+
+  <script src="../shared/config.js"></script>
+  <script src="../shared/hangul.js"></script>
+  <script src="../shared/sound.js"></script>
+  <script src="../shared/progress.js"></script>
+  <script src="../shared/ui.js"></script>
+  <script src="../shared/words/a1.js"></script>
+  <script src="../shared/words/a2.js"></script>
+  <script src="../shared/words/b1.js"></script>
+  <script src="../shared/words/b2.js"></script>
+  <script src="../shared/vocab.js"></script>
+  <script>
+    (async function () {
+      const { hangul, speech, progress, ui, vocab } = KLT;
+      const esc = ui.esc;
+      const $ = (id) => document.getElementById(id);
+      const PAGE = 120;
+      const LABEL = { new: "new", learning: "learning", struggling: "struggling", known: "remembered", mastered: "mastered", locked: "🔒 locked" };
+
+      const { info, stats } = await vocab.state();
+      const now = Date.now();
+      const statusOf = (w) => (w.order >= info.unlocked && !stats[w.id] ? "locked" : progress.status(stats[w.id], now));
+
+      // header: unlock progress and per-level counts
+      const byLevel = vocab.LEVELS.map((lvl) => {
+        const words = vocab.WORDS.filter((w) => w.level === lvl);
+        const known = words.filter((w) => ["known", "mastered"].includes(statusOf(w))).length;
+        const open = words.filter((w) => statusOf(w) !== "locked").length;
+        return `<div><b>${lvl}</b> · ${words.length} words · ${open} unlocked · ${known} remembered</div>`;
+      });
+      $("head").innerHTML = `
+        <h2 style="margin:0">${info.unlocked} of ${vocab.WORDS.length} words unlocked</h2>
+        <div class="meter"><i style="width:${(info.unlocked / vocab.WORDS.length) * 100}%"></i></div>
+        <p class="unlock muted">${info.needed
+          ? `Learn <b>${info.needed}</b> more of your unlocked words (answer each right 3 times in a row) to unlock the next ${progress.VOCAB_STEP}.`
+          : "Everything is unlocked."}
+          Words unlock in order: the most useful A1 words first, up to B2.</p>
+        <div class="levels">${byLevel.join("")}</div>
+        <p class="muted" style="margin:0">Remembered = still known a day or more after you learned it. Mastered = remembered over weeks.
+          Reviews are scheduled automatically (spaced repetition).</p>`;
+
+      const topics = [...new Set(vocab.WORDS.map((w) => w.topic))];
+      $("topic").innerHTML += topics.map((t) => `<option value="${esc(t)}">${esc((vocab.TOPICS[t] || [t])[0])}</option>`).join("");
+
+      let shown = PAGE;
+      function filtered() {
+        const q = $("q").value.trim().toLowerCase();
+        const level = $("level").value, topic = $("topic").value, status = $("status").value;
+        return vocab.WORDS.filter((w) => {
+          if (level !== "all" && w.level !== level) return false;
+          if (topic !== "all" && w.topic !== topic) return false;
+          if (q && !w.ko.includes(q) && !w.en.toLowerCase().includes(q) && !hangul.romanize(w.ko).includes(q)) return false;
+          const s = statusOf(w);
+          if (status === "unlocked") return s !== "locked";
+          if (status === "due") return progress.isDue(stats[w.id], now);
+          return status === "all" || s === status;
+        });
+      }
+
+      function when(ts) {
+        const d = ts - now;
+        if (d <= 0) return "review now";
+        const h = d / 3600e3;
+        return h < 1 ? `in ${Math.ceil(d / 60e3)} min` : h < 24 ? `in ${Math.round(h)} h` : `in ${Math.round(h / 24)} days`;
+      }
+
+      function render() {
+        const words = filtered();
+        $("count").textContent = `${words.length} word${words.length === 1 ? "" : "s"}`;
+        $("list").innerHTML = words.slice(0, shown).map((w) => {
+          const s = stats[w.id];
+          const st = statusOf(w);
+          const acc = s && s.correct + s.wrong ? `${Math.round((s.correct / (s.correct + s.wrong)) * 100)}% · ${s.correct}✓ ${s.wrong}✗` : "";
+          return `<div class="row ${st === "locked" ? "locked" : ""}">
+            <span class="em">${w.emoji || ""}</span>
+            <span class="k" data-say="${esc(w.ko)}" title="Play">${esc(w.ko)}<small>${esc(hangul.romanize(w.ko))}</small></span>
+            <span class="m">${esc(w.en)} <small>· ${esc(vocab.POS[w.pos] || w.pos)} · ${esc(w.level)} · ${esc((vocab.TOPICS[w.topic] || [w.topic])[0])}</small></span>
+            <span class="s"><span class="pill ${st}">${LABEL[st]}</span>${acc ? `<span>${acc}</span>` : ""}${s && s.box > 0 ? `<span>${when(s.due)}</span>` : ""}</span>
+          </div>`;
+        }).join("");
+        $("more").hidden = words.length <= shown;
+        $("list").querySelectorAll("[data-say]").forEach((b) => b.addEventListener("click", () => speech.say(b.dataset.say)));
+      }
+
+      for (const id of ["q", "level", "topic", "status"]) $(id).addEventListener("input", () => { shown = PAGE; render(); });
+      $("more").addEventListener("click", () => { shown += PAGE; render(); });
+      render();
+    })();
+  </script>
+</body>
+</html>

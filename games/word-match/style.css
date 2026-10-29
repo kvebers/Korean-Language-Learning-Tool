@@ -1,0 +1,27 @@
+.columns { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cards { display: flex; flex-direction: column; gap: 8px; }
+
+.wcard {
+  min-height: 58px;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 10px;
+  transition: border-color 0.15s, background 0.15s, opacity 0.3s;
+}
+.wcard.ko { font-family: var(--font-ko); font-size: 1.45rem; }
+.wcard .em { margin-right: 6px; }
+.wcard .icon { font-size: 1.3rem; }
+.wcard:hover:not(:disabled) { border-color: var(--muted); }
+.wcard.selected { border-color: var(--blue); background: color-mix(in srgb, var(--blue) 12%, var(--panel)); }
+.wcard.miss { border-color: var(--bad); background: var(--bad-bg); }
+.wcard.done { border-color: var(--good); background: var(--good-bg); opacity: 0.45; cursor: default; }
+
+.timebar { height: 8px; background: var(--bg); border-radius: 99px; overflow: hidden; margin: -4px 0 14px; }
+.timebar i { display: block; height: 100%; background: var(--accent); width: 100%; transition: width 0.25s linear; }
+
+#summary { margin-top: 20px; }

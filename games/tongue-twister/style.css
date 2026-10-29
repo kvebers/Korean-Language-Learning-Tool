@@ -1,0 +1,22 @@
+.twister { font-family: var(--font-ko); font-size: 1.9rem; line-height: 1.7; text-align: center; margin: 10px 0 6px; word-break: keep-all; }
+.twister .word { display: inline-block; margin: 0 4px; }
+.syl { transition: color 0.15s; }
+.syl.ok { color: var(--good); }
+.syl.bad { color: var(--bad); text-decoration: underline wavy; text-underline-offset: 6px; }
+.word.clean .syl { color: var(--good); text-decoration: none; }
+
+.center { text-align: center; margin: 4px 0; }
+.clock { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
+.clock.low { color: var(--bad); }
+
+.problems { text-align: center; margin-top: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.problems p { width: 100%; margin: 0; }
+.pw { display: inline-flex; gap: 4px; }
+.pw .primary { font-family: var(--font-ko); }
+
+.mic.listening, .btn.listening { animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 25%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .listening { animation: none; outline: 3px solid var(--accent); } }
+
+#summary { margin-top: 20px; }
+@media (max-width: 520px) { .twister { font-size: 1.45rem; } }

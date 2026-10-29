@@ -78,13 +78,13 @@
     ask();
   }
 
-  // Three wrong answers of the same kind (consonant/vowel) when possible.
+  // Three wrong answers of the same kind (consonant/vowel/syllable); for syllables,
+  // ones that share the consonant or vowel.
   function distractors(letter) {
-    const others = (list) => list.filter((l) => l !== letter && l.type === letter.type);
-    let picks = hangul.sample(others(pool), 3);
+    let picks = hangul.similar(letter, pool, 3);
     if (picks.length < 3) {
-      const extra = others(hangul.LETTERS).filter((l) => !picks.includes(l));
-      picks = picks.concat(hangul.sample(extra, 3 - picks.length));
+      const extra = hangul.similar(letter, hangul.LETTERS, 6).filter((l) => !picks.includes(l));
+      picks = picks.concat(extra.slice(0, 3 - picks.length));
     }
     return picks;
   }
@@ -142,7 +142,7 @@
       els.feedback.classList.add("feedback-bad");
     }
     els.score.textContent = score;
-    progress.record(GAME, current.char, correct, correct ? {} : { answer: letter.char });
+    progress.record(GAME, current.char, correct, { skill: "listen", ...(correct ? {} : { answer: letter.char }) });
 
     setTimeout(next, correct ? 900 : 2200);
   }

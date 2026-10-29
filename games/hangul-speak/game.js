@@ -211,6 +211,7 @@
     if (result.pass && !heardHelp) score++;
     if (!result.pass) missed.push(current);
     progress.record(GAME, current.char, result.pass, {
+      skill: "speak",
       assisted: heardHelp,
       ...(result.heard && !result.pass ? { answer: result.heard } : {}),
     });

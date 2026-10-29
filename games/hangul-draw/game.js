@@ -201,7 +201,11 @@
 
   function check() {
     if (result) return;
-    const ranked = recognize.rank(strokes, pool.includes(current) ? pool : [...pool, current]);
+    // syllables: compare with the ones that look alike rather than all 140
+    const candidates = current.type === "syllable"
+      ? [current, ...hangul.similar(current, pool, 11)]
+      : pool.includes(current) ? pool : [...pool, current];
+    const ranked = recognize.rank(strokes, candidates);
     if (!ranked) {
       els.feedback.textContent = strokes.length ? "Draw the letter a bit bigger." : "Draw the letter first.";
       els.feedback.className = "feedback muted";
@@ -245,6 +249,7 @@
     if (counted) score++;
     if (!result.pass) missed.push(current);
     progress.record(GAME, current.char, result.pass, {
+      skill: "write",
       assisted: hintShown,
       ...(result.pass ? {} : { answer: result.best.char }),
     });

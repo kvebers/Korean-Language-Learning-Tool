@@ -1,14 +1,14 @@
 """Local version: serves the games and records learning progress.
 
-Progress (per-letter correct/wrong counts, mistakes, finished rounds) is stored in
-data/progress.json. Uses only the Python standard library.
+Progress is stored in data/progress.json. The browser (shared/progress.js) keeps the
+learning logic and spaced-repetition schedule; this server only loads and saves the document.
+Uses only the Python standard library.
 """
 
 import argparse
 import json
 import os
 import threading
-import time
 import webbrowser
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -16,16 +16,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_FILE = ROOT / "data" / "progress.json"
-LEARNED_STREAK = 3  # correct answers in a row before a letter counts as learned
-MAX_MISTAKES = 1000
-MAX_SESSIONS = 1000
+MAX_BODY = 20_000_000  # bytes; a full vocabulary's progress is well under 1 MB
 LOCAL_CONFIG = b'window.KLT_CONFIG = { mode: "local" };\n'
 
 _lock = threading.Lock()
 
 
 def empty_progress():
-    return {"version": 1, "items": {}, "mistakes": [], "sessions": []}
+    return {"version": 2, "items": {}, "mistakes": [], "sessions": []}
 
 
 def load():
@@ -42,44 +40,8 @@ def save(data):
     os.replace(tmp, DATA_FILE)
 
 
-def apply_event(data, ev):
-    """One answer for one letter. Assisted answers (hint used) are seen but not scored."""
-    ts = ev.get("ts") or int(time.time() * 1000)
-    item = data["items"].setdefault(
-        ev["item"],
-        {"seen": 0, "correct": 0, "wrong": 0, "streak": 0, "bestStreak": 0, "learned": False, "lastSeen": None, "games": {}},
-    )
-    game = item["games"].setdefault(ev["game"], {"correct": 0, "wrong": 0})
-    item["seen"] += 1
-    item["lastSeen"] = ts
-    if ev.get("assisted"):
-        return
-
-    if ev["correct"]:
-        item["correct"] += 1
-        game["correct"] += 1
-        item["streak"] += 1
-        item["bestStreak"] = max(item["bestStreak"], item["streak"])
-    else:
-        item["wrong"] += 1
-        game["wrong"] += 1
-        item["streak"] = 0
-        data["mistakes"].append({"ts": ts, "game": ev["game"], "item": ev["item"], "answer": ev.get("answer")})
-        del data["mistakes"][:-MAX_MISTAKES]
-    item["learned"] = item["streak"] >= LEARNED_STREAK
-
-
-def valid_event(ev):
-    return (
-        isinstance(ev, dict)
-        and isinstance(ev.get("game"), str) and 0 < len(ev["game"]) <= 64
-        and isinstance(ev.get("item"), str) and 0 < len(ev["item"]) <= 16
-        and isinstance(ev.get("correct"), bool)
-    )
-
-
-def valid_session(s):
-    return isinstance(s, dict) and isinstance(s.get("game"), str) and 0 < len(s["game"]) <= 64
+def valid_progress(doc):
+    return isinstance(doc, dict) and isinstance(doc.get("items"), dict)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -112,37 +74,24 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/progress":
             with _lock:
                 data = load()
-            return self._json(200, {**data, "learnedStreak": LEARNED_STREAK})
+            return self._json(200, data)
         return super().do_GET()
 
-    def do_POST(self):
-        path = self.path.split("?", 1)[0]
+    def do_PUT(self):
+        if self.path.split("?", 1)[0] != "/api/progress":
+            return self._json(404, {"error": "not found"})
         try:
             length = int(self.headers.get("Content-Length", 0))
-            body = json.loads(self.rfile.read(min(length, 64_000)) or b"null")
+            if length > MAX_BODY:
+                return self._json(413, {"error": "too large"})
+            body = json.loads(self.rfile.read(length) or b"null")
         except (ValueError, json.JSONDecodeError):
             return self._json(400, {"error": "invalid JSON"})
-
-        if path == "/api/event":
-            if not valid_event(body):
-                return self._json(400, {"error": "expected {game, item, correct}"})
-            with _lock:
-                data = load()
-                apply_event(data, body)
-                save(data)
-            return self._json(200, {"ok": True, "item": data["items"][body["item"]]})
-
-        if path == "/api/session":
-            if not valid_session(body):
-                return self._json(400, {"error": "expected {game, ...}"})
-            with _lock:
-                data = load()
-                data["sessions"].append(body)
-                del data["sessions"][:-MAX_SESSIONS]
-                save(data)
-            return self._json(200, {"ok": True})
-
-        return self._json(404, {"error": "not found"})
+        if not valid_progress(body):
+            return self._json(400, {"error": "expected a progress document with items"})
+        with _lock:
+            save(body)
+        return self._json(200, {"ok": True})
 
     def log_message(self, fmt, *args):
         if "/api/" in self.path:  # keep the console readable

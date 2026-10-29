@@ -24,22 +24,33 @@
     .tile .c { display: block; font-family: var(--font-ko); font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
     .tile .r { display: block; font-size: 0.75rem; color: var(--muted); }
     .chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .tier-head p { margin: -6px 0 12px; color: var(--muted); font-size: 0.92rem; }
+    .dash { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 18px 0 6px; }
+    .dash div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+    .dash dt { font-size: 0.78rem; color: var(--muted); }
+    .dash dd { margin: 0; font-size: 1.35rem; font-weight: 700; }
+    .dash dd small { font-size: 0.8rem; font-weight: 500; color: var(--muted); }
+    .meter { height: 6px; background: var(--bg); border-radius: 99px; overflow: hidden; margin-top: 4px; }
+    .meter i { display: block; height: 100%; background: var(--good); }
+    .next-step { margin: 8px 0 0; }
   </style>
 </head>
 <body>
   <main class="wrap">
     <section class="hero">
       <h1>Korean Learning Games <span class="ko muted">한국어</span></h1>
-      <p>Small games for learning Korean, starting with the Hangul alphabet.</p>
+      <p>Small games for learning Korean, from the Hangul alphabet to your first conversations (A1–A2).</p>
     </section>
 
+    <dl class="dash" id="dash"></dl>
+    <p class="next-step" id="next-step"></p>
     <div class="bar">
-      <a class="btn" id="progress-link" href="progress/index.html" hidden>📈 My progress</a>
+      <a class="btn" href="progress/index.html">📈 My progress</a>
+      <a class="btn" href="library/index.html">📚 Word library</a>
       <span class="muted" id="mode"></span>
     </div>
 
-    <h2>Tier 1 · Hangul alphabet <span class="ko muted">한글 자모</span></h2>
-    <div class="games" id="games"></div>
+    <div id="tiers"></div>
 
     <div class="chart-head">
       <h2>Alphabet chart</h2>
@@ -58,21 +69,54 @@
   <script src="shared/progress.js"></script>
   <script src="shared/ui.js"></script>
   <script src="shared/games.js"></script>
+  <script src="shared/words/a1.js"></script>
+  <script src="shared/words/a2.js"></script>
+  <script src="shared/words/b1.js"></script>
+  <script src="shared/words/b2.js"></script>
+  <script src="shared/vocab.js"></script>
   <script>
-    (function () {
-      const { hangul, speech, progress, ui } = KLT;
+    (async function () {
+      const { hangul, speech, progress, ui, vocab } = KLT;
 
-      document.getElementById("games").innerHTML = KLT.GAMES.map((g) => `
-        <a class="game panel" href="games/${ui.esc(g.id)}/index.html">
-          <span class="tag">${ui.esc(g.tier)}</span>
-          <h3>${ui.esc(g.title)}<span class="ko">${ui.esc(g.ko)}</span></h3>
-          <p>${ui.esc(g.desc)}</p>
-        </a>`).join("");
+      document.getElementById("tiers").innerHTML = Object.entries(KLT.GAME_TIERS).map(([tier, [title, ko, about]]) => `
+        <div class="tier-head"><h2>${ui.esc(title)} <span class="ko muted">${ui.esc(ko)}</span></h2><p>${ui.esc(about)}</p></div>
+        <div class="games">${KLT.GAMES.filter((g) => String(g.tier) === tier).map((g) => `
+          <a class="game panel" href="games/${ui.esc(g.id)}/index.html${ui.esc(g.query || "")}">
+            <span class="tag">${ui.esc(title.split(" · ")[0])}</span>
+            <h3>${ui.esc(g.title)}<span class="ko">${ui.esc(g.ko)}</span></h3>
+            <p>${ui.esc(g.desc)}</p>
+          </a>`).join("")}</div>`).join("");
 
-      document.getElementById("progress-link").hidden = !progress.enabled;
-      document.getElementById("mode").textContent = progress.enabled
-        ? "Local mode: your progress is saved."
-        : "Run it locally (make serve) to track your progress.";
+      document.getElementById("mode").textContent = progress.mode === "local"
+        ? "Local mode: progress is saved to data/progress.json."
+        : "Progress is saved in this browser.";
+
+      // dashboard
+      const doc = await progress.load();
+      const { info, unlocked, stats } = await vocab.state();
+      const now = Date.now();
+      const dueWords = unlocked.filter((w) => progress.isDue(stats[w.id], now)).length;
+      const due = Object.values(doc.items).filter((s) => progress.isDue(s, now)).length;
+      const letters = hangul.pool({ tier: "1" });
+      const lettersLearned = letters.filter((l) => progress.isProficient(stats[l.char])).length;
+      const known = vocab.WORDS.filter((w) => (stats[w.id]?.box || 0) >= progress.KNOWN_BOX).length;
+      let streak = 0;
+      for (let d = new Date(); doc.daily[d.toISOString().slice(0, 10)]; d.setDate(d.getDate() - 1)) streak++;
+      const pct = (a, b) => `<div class="meter"><i style="width:${b ? Math.round((a / b) * 100) : 0}%"></i></div>`;
+      document.getElementById("dash").innerHTML = `
+        <div><dt>Alphabet</dt><dd>${lettersLearned} <small>/ ${letters.length}</small></dd>${pct(lettersLearned, letters.length)}</div>
+        <div><dt>Words unlocked</dt><dd>${info.unlocked} <small>/ ${vocab.WORDS.length}</small></dd>${pct(info.unlocked, vocab.WORDS.length)}</div>
+        <div><dt>Words remembered</dt><dd>${known}</dd></div>
+        <div><dt>Due for review</dt><dd>${due}</dd></div>
+        <div><dt>Day streak</dt><dd>${streak} 🔥</dd></div>`;
+      const step = document.getElementById("next-step");
+      step.innerHTML = lettersLearned < letters.length * 0.8
+        ? `👉 Start with the alphabet: <a href="games/hangul-sound-quiz/index.html">Sound Quiz</a> and <a href="games/hangul-draw/index.html">Draw the Letter</a>.`
+        : dueWords
+          ? `👉 ${dueWords} word${dueWords === 1 ? " is" : "s are"} due: defend the <a href="games/memory-vault/index.html">Memory Vault</a> or <a href="games/word-learn/index.html?mode=review">review them</a>.`
+          : info.needed
+            ? `👉 Learn <b>${info.needed}</b> more of your words to unlock the next ${progress.VOCAB_STEP}: try <a href="games/word-learn/index.html">New Words</a>.`
+            : `👉 Keep going with <a href="games/word-learn/index.html">New Words</a>.`;
 
       const tile = (l) => `<button class="tile" data-say="${ui.esc(l.say)}" title="${ui.esc(l.name)}">
         <span class="c">${ui.esc(l.char)}</span><span class="r">${ui.esc(l.roman)}</span></button>`;

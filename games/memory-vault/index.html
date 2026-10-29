@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memory Vault · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Memory Vault <span class="ko">기억 금고</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="vocab-status"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>Word-carrying invaders march on your vault. The words due for review come first. Answer
+        for the <b>front</b> invader to blast it. Miss and that word comes back in the next wave.
+        Five invaders through the gate and the vault falls.</p>
+      <p id="due-note" class="muted"></p>
+      <button class="btn primary big" id="start-btn">Defend the vault</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Wave <b id="wave">1</b></span>
+        <span>Blasted <b id="score">0</b></span>
+        <span>Vault <b id="lives">❤️❤️❤️❤️❤️</b></span>
+        <span class="spacer"></span>
+        <button class="btn" id="pause">⏸ Pause</button>
+      </div>
+      <div class="field" id="field">
+        <div class="vault">🏰</div>
+        <div class="banner" id="banner" hidden></div>
+      </div>
+      <p class="muted center" id="qlabel"></p>
+      <div id="options" class="g-options"></div>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/words/b1.js"></script>
+  <script src="../../shared/words/b2.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="../../shared/quiz.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

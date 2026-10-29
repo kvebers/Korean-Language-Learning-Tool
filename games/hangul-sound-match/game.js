@@ -113,7 +113,7 @@
       matched++;
       sfx.good();
       if (choice.side === "letter") speech.say(letter.letter.say);
-      progress.record(GAME, sound.letter.char, true);
+      progress.record(GAME, sound.letter.char, true, { skill: "listen" });
       updateHud();
       if (matched === pairCount) setTimeout(finish, 600);
       return;
@@ -121,7 +121,7 @@
 
     mistakes++;
     missed.push(sound.letter);
-    progress.record(GAME, sound.letter.char, false, { answer: letter.letter.char });
+    progress.record(GAME, sound.letter.char, false, { skill: "listen", answer: letter.letter.char });
     sfx.bad();
     for (const c of [sound, letter]) c.el.classList.add("miss");
     setTimeout(() => {

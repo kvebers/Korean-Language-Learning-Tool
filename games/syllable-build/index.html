@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Syllable Builder · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Syllable Builder <span class="ko">음절 만들기</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>Every Korean syllable is a block: a <b>first consonant</b>, a <b>vowel</b>, and sometimes a
+        <b>final consonant (받침)</b> underneath. Hear a syllable, then build it from its letters.
+        Tall vowels (ㅏ ㅓ ㅣ) sit to the right, flat ones (ㅗ ㅜ ㅡ) underneath.</p>
+      <p class="muted">Keys: <b>Enter</b> checks / continues, <b>Backspace</b> removes a letter, <b>Space</b> replays.</p>
+      <div class="g-row">
+        <button class="btn primary big" id="start-btn">Start round</button>
+        <button class="btn big" id="lab-btn">🧪 Free build lab</button>
+      </div>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span id="qlabel">Syllable <b id="qnum">1 / 10</b></span>
+        <span>Score <b id="score">0</b></span>
+        <span class="spacer"></span>
+        <button class="btn" id="replay" title="Play again (Space)">🔊 Play</button>
+      </div>
+
+      <div class="g-prompt">
+        <div id="prompt-text"></div>
+        <div id="word-progress" class="word-progress"></div>
+      </div>
+
+      <div class="builder">
+        <div class="block" id="block">
+          <div class="glyph" id="glyph">?</div>
+        </div>
+        <div class="slots">
+          <button class="slot" data-slot="initial"><span>consonant</span><b id="s-initial">·</b></button>
+          <button class="slot" data-slot="vowel"><span>vowel</span><b id="s-vowel">·</b></button>
+          <button class="slot" data-slot="final" id="final-slot"><span>받침</span><b id="s-final">·</b></button>
+        </div>
+      </div>
+
+      <div class="tiles">
+        <div class="tile-row" id="row-initial"></div>
+        <div class="tile-row" id="row-vowel"></div>
+        <div class="tile-row" id="row-final"></div>
+      </div>
+
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+      <div class="g-row">
+        <button class="btn" id="hint">Hint</button>
+        <button class="btn primary" id="check">Check</button>
+        <button class="btn primary" id="next" hidden>Next →</button>
+        <button class="btn" id="lab-exit" hidden>End lab</button>
+      </div>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

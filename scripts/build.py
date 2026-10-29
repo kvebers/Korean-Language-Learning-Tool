@@ -1,4 +1,4 @@
-"""Builds the static (GitHub Pages) version into dist/: games only, no progress tracking."""
+"""Builds the static (GitHub Pages) version into dist/. Progress is kept in the browser's localStorage there."""
 
 import shutil
 from pathlib import Path
@@ -12,6 +12,8 @@ def main():
     DIST.mkdir()
     shutil.copy2(ROOT / "index.html", DIST / "index.html")
     shutil.copytree(ROOT / "shared", DIST / "shared")
+    for page in ("progress", "library"):
+        shutil.copytree(ROOT / page, DIST / page)
     shutil.copytree(ROOT / "games", DIST / "games", ignore=shutil.ignore_patterns("_template"))
     (DIST / ".nojekyll").touch()  # serve files as-is, no Jekyll processing
 

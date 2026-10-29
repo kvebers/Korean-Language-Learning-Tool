@@ -31,7 +31,7 @@ def main():
         f'    title: "{title}",\n'
         '    ko: "",\n'
         '    desc: "TODO: describe the game.",\n'
-        '    tier: "Tier 1 · Alphabet",\n'
+        "    tier: 1,\n"
         "  },\n"
     )
     registry.write_text(text.replace(MARKER, entry + MARKER, 1), encoding="utf-8")

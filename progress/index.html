@@ -13,15 +13,29 @@
     .cell { border: 2px solid var(--line); border-radius: 10px; padding: 6px 4px; text-align: center; background: var(--panel); }
     .cell .c { font-family: var(--font-ko); font-size: 1.7rem; font-weight: 700; line-height: 1.2; }
     .cell .n { font-size: 0.75rem; color: var(--muted); }
-    .learned { border-color: var(--good); background: var(--good-bg); }
+    .learned, .known, .mastered { border-color: var(--good); background: var(--good-bg); }
     .learning { border-color: #d9a400; }
     .struggling { border-color: var(--bad); background: var(--bad-bg); }
-    .unseen { opacity: 0.55; }
+    .unseen, .new { opacity: 0.55; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
     th { color: var(--muted); font-weight: 600; font-size: 0.8rem; }
     td.ko { font-size: 1.15rem; font-weight: 700; }
+    .bars { display: flex; flex-direction: column; gap: 8px; }
+    .bar-row { display: grid; grid-template-columns: 110px 1fr 70px; gap: 10px; align-items: center; font-size: 0.9rem; }
+    .track { height: 14px; background: var(--bg); border-radius: 99px; overflow: hidden; display: flex; }
+    .track i { display: block; height: 100%; }
+    .seg-mastered { background: var(--good); }
+    .seg-known { background: color-mix(in srgb, var(--good) 55%, var(--panel)); }
+    .seg-learning { background: #d9a400; }
+    .seg-struggling { background: var(--bad); }
+    .seg-new { background: color-mix(in srgb, var(--blue) 35%, var(--panel)); }
+    .seg-acc { background: var(--blue); }
+    .activity { display: flex; align-items: flex-end; gap: 4px; height: 90px; }
+    .activity div { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; font-size: 0.65rem; color: var(--muted); }
+    .activity i { display: block; width: 100%; background: var(--blue); border-radius: 4px 4px 0 0; min-height: 2px; }
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -36,64 +50,134 @@
 
   <script src="../shared/config.js"></script>
   <script src="../shared/hangul.js"></script>
+  <script src="../shared/sound.js"></script>
   <script src="../shared/progress.js"></script>
   <script src="../shared/ui.js"></script>
   <script src="../shared/games.js"></script>
+  <script src="../shared/words/a1.js"></script>
+  <script src="../shared/words/a2.js"></script>
+  <script src="../shared/words/b1.js"></script>
+  <script src="../shared/words/b2.js"></script>
+  <script src="../shared/vocab.js"></script>
   <script>
     (async function () {
-      const { hangul, progress, ui } = KLT;
+      const { hangul, progress, ui, vocab, speech } = KLT;
       const app = document.getElementById("app");
       const esc = ui.esc;
 
-      if (!progress.enabled) {
-        app.innerHTML = `<p class="notice">Progress is only tracked in the local version. Start it with <b>make serve</b>.</p>`;
-        return;
-      }
-
-      let data;
-      try {
-        data = await (await fetch("/api/progress")).json();
-      } catch {
-        app.innerHTML = `<p class="notice">Couldn't reach the local server.</p>`;
-        return;
-      }
-
-      const items = data.items || {};
+      const data = await progress.load();
+      const { info } = await vocab.state();
+      const items = data.items;
+      const now = Date.now();
+      const DAY = 864e5;
       const gameTitle = (id) => (KLT.GAMES.find((g) => g.id === id) || { title: id }).title;
       const when = (ts) => new Date(ts).toLocaleString();
-      const status = (s) => !s ? "unseen" : s.learned ? "learned" : s.wrong > s.correct ? "struggling" : "learning";
+      const pct = (c, t) => (t ? `${Math.round((c / t) * 100)}%` : "–");
 
-      const tier1 = hangul.pool({ tier: "1" });
-      const learned1 = tier1.filter((l) => items[l.char]?.learned).length;
-      const totals = Object.values(items).reduce((t, s) => ({ c: t.c + s.correct, w: t.w + s.wrong }), { c: 0, w: 0 });
+      // how to show an item id: letters/syllables as is, words without "w:", grammar by name
+      const GRAMMAR = {
+        "g:past": "Past tense -았/었어요", "g:present": "Present -아/어요", "g:future": "Future -(으)ㄹ 거예요",
+        "g:topic": "Topic 은/는", "g:subject": "Subject 이/가", "g:object": "Object 을/를", "g:e": "에 (to / at)", "g:eseo": "에서 (at, action)", "g:do": "도 (also)",
+        "g:order": "Word order", "g:negation": "Negation 안 / 못", "g:question": "Questions", "g:request": "Requests & wishes (주세요, -고 싶어요)", "g:location": "Location words + 에 있어요",
+        "g:time": "Telling time", "g:date": "Dates & months",
+      };
+      const label = (id) => id.startsWith("w:") ? id.slice(2) : id.startsWith("num:") ? `Numbers with ${id.slice(4)}` : id.startsWith("tt:") ? `Tongue twister #${Number(id.slice(3)) + 1}` : GRAMMAR[id] || id;
+
+      const all = Object.entries(items);
+      const totals = all.reduce((t, [, s]) => ({ c: t.c + s.correct, w: t.w + s.wrong }), { c: 0, w: 0 });
       const answered = totals.c + totals.w;
+      let streak = 0;
+      for (let d = new Date(); data.daily[d.toISOString().slice(0, 10)]; d.setDate(d.getDate() - 1)) streak++;
+      const dueNow = all.filter(([, s]) => progress.isDue(s, now)).length;
+      const dueTomorrow = all.filter(([, s]) => s.box > 0 && s.due > now && s.due <= now + DAY).length;
+      const dueWeek = all.filter(([, s]) => s.box > 0 && s.due > now + DAY && s.due <= now + 7 * DAY).length;
 
+      // skills across all items
+      const skills = Object.entries(progress.SKILLS).map(([k, name]) => {
+        const t = all.reduce((a, [, s]) => ({ c: a.c + (s.skills?.[k]?.correct || 0), w: a.w + (s.skills?.[k]?.wrong || 0) }), { c: 0, w: 0 });
+        return { name, ...t };
+      });
+
+      // vocabulary status per level
+      const statusOf = (w) => progress.status(items[w.id], now);
+      const levels = vocab.LEVELS.map((lvl) => {
+        const words = vocab.WORDS.filter((w) => w.level === lvl);
+        const count = { mastered: 0, known: 0, learning: 0, struggling: 0, new: 0 };
+        for (const w of words) if (items[w.id]?.seen) count[statusOf(w)]++;
+        return { lvl, n: words.length, count };
+      });
+
+      // last 14 days of answers
+      const days = [...Array(14)].map((_, i) => {
+        const d = new Date(now - (13 - i) * DAY).toISOString().slice(0, 10);
+        const v = data.daily[d] || { correct: 0, wrong: 0 };
+        return { d, n: v.correct + v.wrong };
+      });
+      const maxDay = Math.max(1, ...days.map((d) => d.n));
+
+      const status = (s) => !s ? "unseen" : s.box >= progress.KNOWN_BOX || s.learned ? "learned" : s.wrong > s.correct ? "struggling" : "learning";
       const cell = (l) => {
         const s = items[l.char];
-        const acc = s && s.correct + s.wrong ? `${Math.round((s.correct / (s.correct + s.wrong)) * 100)}%` : "–";
         return `<div class="cell ${status(s)}" title="${esc(l.name)} · ${esc(l.roman)}">
           <div class="c">${esc(l.char)}</div>
-          <div class="n">${s ? `${acc} · ${s.correct}✓ ${s.wrong}✗` : "new"}</div></div>`;
+          <div class="n">${s ? `${pct(s.correct, s.correct + s.wrong)} · ${s.correct}✓ ${s.wrong}✗` : "new"}</div></div>`;
       };
+      const syllablesSeen = all.filter(([id]) => hangul.decompose(id) && id.length === 1);
+      const syllablesKnown = syllablesSeen.filter(([, s]) => progress.isProficient(s)).length;
 
-      const mostMissed = Object.entries(items)
-        .filter(([, s]) => s.wrong > 0)
-        .sort((a, b) => b[1].wrong - a[1].wrong)
-        .slice(0, 10)
-        .map(([char]) => hangul.byChar(char))
-        .filter(Boolean);
-
-      const mistakes = (data.mistakes || []).slice(-25).reverse();
-      const sessions = (data.sessions || []).slice(-15).reverse();
+      const grammar = all.filter(([id]) => /^(g|num|tt):/.test(id)).sort((a, b) => label(a[0]).localeCompare(label(b[0])));
+      const struggling = all.filter(([, s]) => s.wrong > 0 && s.wrong >= s.correct / 2).sort((a, b) => b[1].wrong - a[1].wrong).slice(0, 16);
+      const chipFor = (id) => {
+        const w = vocab.byId.get(id);
+        if (w) return ui.letterChip(w);
+        const l = hangul.byChar(id);
+        return l ? ui.letterChip(l) : `<span class="chip"><span class="chip-roman">${esc(label(id))}</span></span>`;
+      };
+      const mistakes = data.mistakes.slice(-25).reverse();
+      const sessions = data.sessions.slice(-15).reverse();
+      const learnedLetters = hangul.pool({ tier: "1" }).filter((l) => progress.isProficient(items[l.char])).length;
 
       app.innerHTML = `
         <dl class="stats">
-          <div><dt>Alphabet learned</dt><dd>${learned1} / ${tier1.length}</dd></div>
+          <div><dt>Alphabet learned</dt><dd>${learnedLetters} / 24</dd></div>
+          <div><dt>Words unlocked</dt><dd>${info.unlocked}</dd></div>
           <div><dt>Answers</dt><dd>${answered}</dd></div>
-          <div><dt>Accuracy</dt><dd>${answered ? Math.round((totals.c / answered) * 100) + "%" : "–"}</dd></div>
-          <div><dt>Rounds played</dt><dd>${(data.sessions || []).length}</dd></div>
+          <div><dt>Accuracy</dt><dd>${pct(totals.c, answered)}</dd></div>
+          <div><dt>Day streak</dt><dd>${streak} 🔥</dd></div>
+          <div><dt>Rounds played</dt><dd>${data.sessions.length}</dd></div>
         </dl>
-        <p class="muted">A letter counts as <b>learned</b> after ${data.learnedStreak || 3} correct answers in a row; a mistake puts it back to learning.</p>
+        <p class="muted">Every letter, syllable, word and grammar point has its own review schedule. A right answer when
+          it's due pushes the next review further out (10 min → 1 day → 3 → 7 → 16 → 35 → 90 days); a mistake brings it back
+          in 10 minutes. <b>Learned</b> = right 3 times in a row. <b>Remembered</b> = still right after a gap of a day or more.</p>
+
+        <h2>Reviews</h2>
+        <dl class="stats">
+          <div><dt>Due now</dt><dd>${dueNow}</dd></div>
+          <div><dt>Due within a day</dt><dd>${dueTomorrow}</dd></div>
+          <div><dt>Due this week</dt><dd>${dueWeek}</dd></div>
+        </dl>
+
+        <h2>Skills</h2>
+        <div class="bars">${skills.map((s) => `<div class="bar-row"><span>${esc(s.name)}</span>
+          <div class="track"><i class="seg-acc" style="width:${s.c + s.w ? (s.c / (s.c + s.w)) * 100 : 0}%"></i></div>
+          <span class="muted">${pct(s.c, s.c + s.w)} <small>(${s.c + s.w})</small></span></div>`).join("")}</div>
+        <p class="muted">Recognition: Korean → meaning. Recall: meaning → Korean. Listening: sound → meaning. Speaking: checked by speech recognition. Writing: drawing and building letters.</p>
+
+        <h2>Last 14 days</h2>
+        <div class="activity">${days.map((d) => `<div title="${d.d}: ${d.n} answers"><i style="height:${(d.n / maxDay) * 100}%"></i>${d.d.slice(8)}</div>`).join("")}</div>
+
+        <h2>Vocabulary</h2>
+        <div class="legend"><span><i class="seg-mastered"></i>mastered</span><span><i class="seg-known"></i>remembered</span>
+          <span><i class="seg-learning"></i>learning</span><span><i class="seg-struggling"></i>struggling</span><span><i class="seg-new"></i>met once</span></div>
+        <div class="bars">${levels.map(({ lvl, n, count }) => `<div class="bar-row"><span>${lvl} <small class="muted">(${n})</small></span>
+          <div class="track">${["mastered", "known", "learning", "struggling", "new"].map((k) => `<i class="seg-${k}" style="width:${(count[k] / n) * 100}%"></i>`).join("")}</div>
+          <span class="muted">${count.mastered + count.known} / ${n}</span></div>`).join("")}</div>
+        <p><a href="../library/index.html">Open the word library →</a></p>
+
+        ${grammar.length ? `<h2>Grammar, numbers & pronunciation</h2><div class="table-wrap"><table>
+          <tr><th>Point</th><th>Accuracy</th><th>Answers</th><th>Status</th></tr>
+          ${grammar.map(([id, s]) => `<tr><td>${esc(label(id))}</td><td>${pct(s.correct, s.correct + s.wrong)}</td><td>${s.correct + s.wrong}</td><td><span class="pill ${progress.status(s)}">${progress.status(s)}</span></td></tr>`).join("")}
+        </table></div>` : ""}
 
         ${[1, 2].map((tier) => `
           <h2>${esc(hangul.TIERS[tier])}</h2>
@@ -101,15 +185,16 @@
             <span><i style="border:2px solid #d9a400"></i>learning</span><span><i style="background:var(--bad-bg);border:2px solid var(--bad)"></i>struggling</span>
             <span><i style="border:2px solid var(--line);opacity:.55"></i>not seen yet</span></div>` : ""}
           <div class="grid">${hangul.pool({ tier: String(tier) }).map(cell).join("")}</div>`).join("")}
+        <p class="muted">Syllables practised: ${syllablesSeen.length} · learned: ${syllablesKnown}</p>
 
-        <h2>Most missed</h2>
-        ${mostMissed.length ? `<div class="chips">${mostMissed.map(ui.letterChip).join("")}</div>` : `<p class="muted">Nothing yet.</p>`}
+        <h2>Needs work</h2>
+        ${struggling.length ? `<div class="chips">${struggling.map(([id]) => chipFor(id)).join("")}</div>` : `<p class="muted">Nothing yet.</p>`}
 
         <h2>Recent mistakes</h2>
         ${mistakes.length ? `<div class="table-wrap"><table>
-          <tr><th>When</th><th>Game</th><th>Letter</th><th>Your answer</th></tr>
+          <tr><th>When</th><th>Game</th><th>Item</th><th>Your answer</th></tr>
           ${mistakes.map((m) => `<tr><td>${esc(when(m.ts))}</td><td>${esc(gameTitle(m.game))}</td>
-            <td class="ko">${esc(m.item)}</td><td class="ko">${esc(m.answer ?? "–")}</td></tr>`).join("")}
+            <td class="ko">${esc(label(m.item))}</td><td class="ko">${esc(m.answer ?? "–")}</td></tr>`).join("")}
         </table></div>` : `<p class="muted">No mistakes recorded.</p>`}
 
         <h2>Recent rounds</h2>
@@ -117,16 +202,47 @@
           <tr><th>When</th><th>Game</th><th>Score</th><th>Time</th><th>Missed</th></tr>
           ${sessions.map((s) => `<tr><td>${esc(when(s.ts))}</td><td>${esc(gameTitle(s.game))}</td>
             <td>${esc(s.score)} / ${esc(s.total)}</td><td>${esc(ui.formatTime(s.durationMs || 0))}</td>
-            <td class="ko">${esc((s.missed || []).join(" ") || "–")}</td></tr>`).join("")}
-        </table></div>` : `<p class="muted">No rounds played yet.</p>`}`;
+            <td class="ko">${esc((s.missed || []).map(label).join(" ") || "–")}</td></tr>`).join("")}
+        </table></div>` : `<p class="muted">No rounds played yet.</p>`}
 
-      app.querySelectorAll("[data-say]").forEach((b) => b.addEventListener("click", () => {
-        if (window.speechSynthesis) {
-          const u = new SpeechSynthesisUtterance(b.dataset.say);
-          u.lang = "ko-KR";
-          speechSynthesis.speak(u);
+        <h2>Your data</h2>
+        <p class="muted">${progress.mode === "local" ? "Saved on this computer in data/progress.json." : "Saved in this browser. Export it to keep a backup or move it to another device (or to the local version)."}</p>
+        <div class="tools">
+          <button class="btn" id="export">⬇ Export progress</button>
+          <label class="btn">⬆ Import<input type="file" id="import" accept="application/json" hidden></label>
+          <button class="btn" id="reset">Reset all progress</button>
+        </div>`;
+
+      app.querySelectorAll("[data-say]").forEach((b) => b.addEventListener("click", () => speech.say(b.dataset.say)));
+      document.getElementById("export").addEventListener("click", async () => {
+        const blob = new Blob([await progress.exportJSON()], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `korean-progress-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+      document.getElementById("import").addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          await progress.importJSON(await file.text());
+          location.reload();
+        } catch {
+          app.insertAdjacentHTML("beforeend", `<p class="notice">That file isn't a progress export.</p>`);
         }
-      }));
+      });
+      // two clicks instead of a confirm() dialog
+      const reset = document.getElementById("reset");
+      reset.addEventListener("click", async () => {
+        if (!reset.dataset.armed) {
+          reset.dataset.armed = "1";
+          reset.textContent = "Click again to delete everything";
+          return;
+        }
+        await progress.reset();
+        location.reload();
+      });
     })();
   </script>
 </body>

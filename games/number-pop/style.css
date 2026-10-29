@@ -1,0 +1,38 @@
+.sky {
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--blue) 14%, var(--bg)), var(--bg));
+}
+.bubble {
+  position: absolute;
+  bottom: -90px;
+  width: 112px;
+  min-height: 84px;
+  padding: 8px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--blue) 40%, transparent);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), color-mix(in srgb, var(--blue) 16%, var(--panel)));
+  color: #1d1d1f;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  cursor: pointer;
+  animation: rise linear infinite;
+}
+.bubble.ko { font-family: var(--font-ko); font-size: 1.05rem; }
+.bubble.wrong { border-color: var(--bad); background: var(--bad-bg); color: var(--bad); opacity: 0.6; }
+.bubble.popped { animation: none; transform: scale(1.4); opacity: 0; transition: transform 0.3s, opacity 0.3s; }
+.bubble:disabled { cursor: default; }
+@keyframes rise {
+  from { transform: translateY(0); }
+  to { transform: translateY(-430px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bubble { animation: none; bottom: auto; top: 40%; }
+}
+#summary { margin-top: 20px; }
+@media (max-width: 520px) { .bubble { width: 92px; font-size: 0.8rem; } }

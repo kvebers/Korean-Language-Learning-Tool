@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Time Portal · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Time Portal <span class="ko">어제 · 오늘 · 내일</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>A verb card appears with a sentence. Send the card through the right time portal,
+        then pick the form that comes out: <span class="ko">먹다 → 먹었어요</span> (past),
+        <span class="ko">먹어요</span> (present), <span class="ko">먹을 거예요</span> (future).</p>
+      <details class="rules">
+        <summary>How the endings work</summary>
+        <ul>
+          <li>Present <b>-아요/-어요</b>: if the last vowel of the stem is ㅏ or ㅗ add 아요 (<span class="ko">살다 → 살아요</span>), otherwise 어요 (<span class="ko">먹다 → 먹어요</span>). 하다 → <span class="ko">해요</span>.</li>
+          <li>Vowels merge: <span class="ko">가 + 아요 → 가요</span>, <span class="ko">오 + 아요 → 와요</span>, <span class="ko">마시 + 어요 → 마셔요</span>, <span class="ko">배우 + 어요 → 배워요</span>.</li>
+          <li>Past <b>-았어요/-었어요</b> follows the same choice: <span class="ko">갔어요, 먹었어요, 했어요</span>.</li>
+          <li>Future <b>-(으)ㄹ 거예요</b>: <span class="ko">갈 거예요</span> after a vowel, <span class="ko">먹을 거예요</span> after a consonant.</li>
+        </ul>
+      </details>
+      <button class="btn primary big" id="start-btn">Start</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Card <b id="qnum">1 / 10</b></span>
+        <span>Score <b id="score">0</b></span>
+      </div>
+      <div class="cue" id="cue"></div>
+      <div class="stage">
+        <button class="portal past" data-tense="past"><span class="ko">어제</span><small>1</small></button>
+        <div class="hero">
+          <div class="who">🧑</div>
+          <div class="card" id="card"></div>
+        </div>
+        <button class="portal present" data-tense="present"><span class="ko">오늘</span><small>2</small></button>
+        <button class="portal future" data-tense="future" id="future-portal"><span class="ko">내일</span><small>3</small></button>
+      </div>
+      <div id="forms" class="g-options" hidden></div>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+      <div class="g-row"><button class="btn primary" id="next" hidden>Next →</button></div>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/korean.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

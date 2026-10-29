@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Particle Pop · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Particle Pop <span class="ko">조사 팡</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>Particles stick to the end of a word and say what job it does in the sentence.
+        Pop the particle that fills the gap.</p>
+      <details class="rules">
+        <summary>Cheat sheet</summary>
+        <ul>
+          <li><b class="ko">은 / 는</b>: topic, “as for…”: introductions, contrast. <span class="ko">저<b>는</b> 학생이에요.</span></li>
+          <li><b class="ko">이 / 가</b>: subject, with 있다/없다, 아니다, how something is, new information. <span class="ko">고양이<b>가</b> 있어요.</span></li>
+          <li><b class="ko">을 / 를</b>: object of an action. <span class="ko">사과<b>를</b> 먹어요.</span></li>
+          <li>The first form follows a consonant (책<b>은</b>, 책<b>이</b>, 책<b>을</b>), the second a vowel (사과<b>는</b>, 사과<b>가</b>, 사과<b>를</b>).</li>
+          <li><b class="ko">에</b>: to / at (places you go, where things are, times). <b class="ko">에서</b>: where an action happens. <b class="ko">도</b>: also.</li>
+        </ul>
+      </details>
+      <button class="btn primary big" id="start-btn">Start</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Sentence <b id="qnum">1 / 12</b></span>
+        <span>Score <b id="score">0</b></span>
+        <span class="spacer"></span>
+        <button class="btn" id="replay">🔊</button>
+      </div>
+      <div class="sentence" id="sentence"></div>
+      <p class="muted center" id="english"></p>
+      <div class="sky" id="sky"></div>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+      <div class="g-row"><button class="btn primary" id="next" hidden>Next →</button></div>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/korean.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="sentences.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+.builder { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 22px; margin-bottom: 16px; }
+
+.block {
+  width: 150px;
+  height: 150px;
+  border: 3px dashed var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+}
+.block.good { border: 3px solid var(--good); background: var(--good-bg); }
+.block.bad { border: 3px solid var(--bad); background: var(--bad-bg); }
+.block .glyph { font-family: var(--font-ko); font-size: 6rem; font-weight: 700; line-height: 1; }
+.block.empty .glyph { font-size: 2.4rem; color: var(--muted); }
+
+.slots { display: flex; flex-direction: column; gap: 8px; }
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 170px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 6px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+.slot span { font-size: 0.78rem; color: var(--muted); }
+.slot b { font-family: var(--font-ko); font-size: 1.6rem; }
+
+.tiles { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.tile-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+.row-label { font-size: 0.75rem; color: var(--muted); width: 72px; text-align: right; }
+.jamo {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--font-ko);
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.jamo.none { width: auto; padding: 0 10px; font-family: var(--font); font-size: 0.85rem; font-weight: 600; }
+.jamo:hover { border-color: var(--muted); }
+.jamo.on { border-color: var(--blue); background: color-mix(in srgb, var(--blue) 14%, var(--panel)); }
+
+.word-progress { font-size: 1.1rem; }
+.wp { font-family: var(--font-ko); font-size: 1.6rem; font-weight: 700; margin: 0 2px; color: var(--muted); }
+.wp.done { color: var(--good); }
+.wp.now { color: var(--blue); }
+
+#summary { margin-top: 20px; }
+
+@media (max-width: 520px) {
+  .row-label { width: 100%; text-align: center; }
+  .jamo { width: 46px; height: 46px; }
+}

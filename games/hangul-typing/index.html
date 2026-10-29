@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Korean Typing · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Korean Typing <span class="ko">타자 연습</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>Korean keyboards (두벌식) put <b>consonants on the left hand</b> and <b>vowels on the right</b>.
+        You type letter by letter and the computer stacks them into syllables: <span class="ko">ㅎ ㅏ ㄴ → 한</span>.
+        Double consonants (ㄲ ㄸ ㅃ ㅆ ㅉ) and ㅒ ㅖ use <b>Shift</b>; ㅘ is ㅗ then ㅏ.</p>
+      <p class="muted">No Korean keyboard installed? No problem: this game reads the key positions, so your
+        normal keyboard works (the on-screen keys show which letter each key makes). On a phone, tap the on-screen keys.</p>
+      <button class="btn primary big" id="start-btn">Start typing</button>
+    </section>
+
+    <section id="play" class="panel" hidden tabindex="0">
+      <div class="hud">
+        <span>Item <b id="qnum">1 / 10</b></span>
+        <span>Accuracy <b id="acc">100%</b></span>
+        <span>Speed <b id="speed">0</b> keys/min</span>
+        <span class="spacer"></span>
+        <button class="btn" id="replay">🔊</button>
+      </div>
+      <div class="target" id="target"></div>
+      <div class="typed" id="typed"></div>
+      <p class="muted center" id="meaning"></p>
+      <div class="keyboard" id="keyboard"></div>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

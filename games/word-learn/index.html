@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Words · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>New Words <span class="ko">새 단어</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="vocab-status"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>Meet a few new words with picture, sound and meaning, then use each one straight away:
+        recognise it, hear it, and recall it. Words you miss come back at the end of the round,
+        and come back for review later on their own schedule.</p>
+      <p id="due-note" class="muted"></p>
+      <button class="btn primary big" id="start-btn">Start</button>
+    </section>
+
+    <section id="intro" class="panel" hidden>
+      <div class="hud"><span>New word <b id="inum">1 / 5</b></span><span class="spacer"></span>
+        <button class="btn" id="intro-say">🔊 Hear it</button></div>
+      <div id="intro-card"></div>
+      <div class="g-row"><button class="btn primary" id="intro-next">Got it →</button></div>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Left <b id="left">0</b></span>
+        <span>Score <b id="score">0</b></span>
+        <span class="spacer"></span>
+        <button class="btn" id="replay">🔊</button>
+      </div>
+      <p class="muted center" id="qlabel"></p>
+      <div class="g-prompt" id="prompt"></div>
+      <div id="options" class="g-options"></div>
+      <form id="type-form" class="g-row" hidden>
+        <input id="type-input" class="g-input ko" autocomplete="off" lang="ko" placeholder="한국어로 쓰세요">
+        <button class="btn primary">Check</button>
+        <button class="btn" type="button" id="type-skip">I don't know</button>
+      </form>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+      <div id="reveal" hidden></div>
+      <div class="g-row"><button class="btn primary" id="next" hidden>Next →</button></div>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/words/b1.js"></script>
+  <script src="../../shared/words/b2.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="../../shared/quiz.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

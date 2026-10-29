@@ -57,14 +57,74 @@
     2: "Tier 2 · Double consonants & compound vowels",
   };
 
+  // ---- syllable blocks ----------------------------------------------------
+  // A syllable is U+AC00 + (initial * 21 + vowel) * 28 + final.
+  const INITIALS = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+  const VOWELS = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
+  const FINALS = ["", ..."ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ"];
+
+  // Revised Romanization; finals use their representative sound.
+  const ROMAN_INITIAL = ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"];
+  const ROMAN_VOWEL = ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"];
+  const ROMAN_FINAL = ["", "k", "k", "k", "n", "n", "n", "t", "l", "k", "m", "l", "l", "l", "p", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t"];
+
+  function compose(initial, vowel, final = "") {
+    const i = INITIALS.indexOf(initial), v = VOWELS.indexOf(vowel), f = FINALS.indexOf(final);
+    if (i < 0 || v < 0 || f < 0) return null;
+    return String.fromCharCode(0xac00 + (i * 21 + v) * 28 + f);
+  }
+
+  function decompose(syllable) {
+    const code = (syllable || "").charCodeAt(0) - 0xac00;
+    if (!(code >= 0 && code <= 11171)) return null;
+    const i = Math.floor(code / 588), v = Math.floor((code % 588) / 28), f = code % 28;
+    return { initial: INITIALS[i], vowel: VOWELS[v], final: FINALS[f], i, v, f };
+  }
+
+  function romanizeSyllable(s) {
+    const d = decompose(s);
+    return d ? ROMAN_INITIAL[d.i] + ROMAN_VOWEL[d.v] + ROMAN_FINAL[d.f] : s;
+  }
+
+  // Letter-by-letter romanization (no sound-change rules), good enough as a reading aid.
+  function romanize(text) {
+    return [...text].map(romanizeSyllable).join("");
+  }
+
+  function syllable(char) {
+    const d = decompose(char);
+    return { char, type: "syllable", tier: d.final ? "batchim" : "syl", roman: romanizeSyllable(char), name: char, say: char, parts: d };
+  }
+
+  // Tier "syl": every basic consonant with every basic vowel (가, 나 … 히).
+  const BASIC_C = LETTERS.filter((l) => l.tier === 1 && l.type === "consonant").map((l) => l.char);
+  const BASIC_V = LETTERS.filter((l) => l.tier === 1 && l.type === "vowel").map((l) => l.char);
+  const OPEN_SYLLABLES = BASIC_C.flatMap((c) => BASIC_V.map((v) => syllable(compose(c, v))));
+  // Tier "batchim": common syllables with a final consonant, taken from beginner words.
+  const BATCHIM_SYLLABLES = [..."한국말밥물집산강문몸옷꽃책방공생일월년원번분길발손눈날밤맛빵술컵돈땅반선학음식점장상정영명성신인친들을는은있없많좋갑잡입십삼백천만엄형동김님힘감남탁불봄곰달별살속숲약역울잠짐창콩팔폭향흙"]
+    .map(syllable);
+  const SYLLABLE_TIERS = { syl: "Syllables · consonant + vowel", batchim: "Syllables · with final (받침)" };
+
   function pool({ tier = "1", type = "all" } = {}) {
+    if (tier === "syl") return OPEN_SYLLABLES;
+    if (tier === "batchim") return BATCHIM_SYLLABLES;
     return LETTERS.filter(
       (l) => (tier === "all" || l.tier === Number(tier)) && (type === "all" || l.type === type)
     );
   }
 
   function byChar(char) {
-    return LETTERS.find((l) => l.char === char);
+    return LETTERS.find((l) => l.char === char) || (decompose(char) ? syllable(char) : undefined);
+  }
+
+  // Up to n items from `list` that look most like `item` (same type; for syllables,
+  // sharing the consonant or vowel), so wrong answers are worth thinking about.
+  function similar(item, list, n) {
+    const others = list.filter((x) => x !== item && x.char !== item.char && x.type === item.type);
+    if (item.type !== "syllable") return sample(others, n);
+    const p = item.parts;
+    const score = (x) => (x.parts.initial === p.initial) + (x.parts.vowel === p.vowel) + (x.parts.final === p.final) + Math.random() * 0.9;
+    return others.map((x) => [score(x), x]).sort((a, b) => b[0] - a[0]).slice(0, n).map(([, x]) => x);
   }
 
   function shuffle(arr) {
@@ -95,5 +155,9 @@
     return out;
   }
 
-  KLT.hangul = { LETTERS, TIERS, pool, byChar, shuffle, sample, weightedSample };
+  KLT.hangul = {
+    LETTERS, TIERS, SYLLABLE_TIERS, INITIALS, VOWELS, FINALS,
+    pool, byChar, similar, shuffle, sample, weightedSample,
+    compose, decompose, romanize, syllable,
+  };
 })();

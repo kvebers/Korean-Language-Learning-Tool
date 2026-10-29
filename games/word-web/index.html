@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word Web · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Word Web <span class="ko">단어 거미줄</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>A seed word sits in the middle, like <span class="ko">날씨</span> (weather). Words drift around it.
+        Fire a laser at every word that belongs to the seed's web (<span class="ko">비</span>, <span class="ko">춥다</span>…)
+        and leave the others alone. Grouping words by meaning helps them stick.</p>
+      <button class="btn primary big" id="start-btn">Start weaving</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Web <b id="wnum">1 / 4</b></span>
+        <span>Links <b id="links">0 / 5</b></span>
+        <span>Mistakes <b id="mistakes">0</b></span>
+      </div>
+      <div class="space" id="space">
+        <svg id="lasers" class="lasers"></svg>
+        <div class="seed" id="seed"></div>
+      </div>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/words/b1.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

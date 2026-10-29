@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fridge Raid · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Fridge Raid <span class="ko">냉장고</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>Groceries are all over the kitchen! Read the Korean shopping list and drag only the
+        items on it into the fridge (or tap an item to put it away). Five lists per round.</p>
+      <button class="btn primary big" id="start-btn">Start</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>List <b id="lnum">1 / 5</b></span>
+        <span>Score <b id="score">0</b></span>
+        <span>Mistakes <b id="mistakes">0</b></span>
+      </div>
+      <div class="kitchen">
+        <div class="list" id="list">
+          <h3>장보기 목록 <span class="muted">shopping list</span></h3>
+          <ul id="items"></ul>
+        </div>
+        <div class="fridge" id="fridge" aria-label="Fridge">
+          <div class="fridge-top">❄️</div>
+          <div class="fridge-inside" id="inside"></div>
+        </div>
+      </div>
+      <div class="counter" id="counter"></div>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

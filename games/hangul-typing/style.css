@@ -1,0 +1,48 @@
+#play:focus { outline: none; }
+.target { font-family: var(--font-ko); font-size: 3.4rem; font-weight: 700; text-align: center; letter-spacing: 2px; }
+.target .done { color: var(--good); }
+.target .now { color: var(--blue); text-decoration: underline; text-underline-offset: 8px; }
+.typed { font-family: var(--font-ko); font-size: 1.6rem; text-align: center; min-height: 2.2rem; color: var(--muted); }
+.center { text-align: center; margin: 4px 0 14px; }
+
+.keyboard { display: flex; flex-direction: column; align-items: center; gap: 6px; user-select: none; }
+.krow { display: flex; gap: 6px; }
+.krow.r1 { margin-left: 22px; }
+.krow.r2 { margin-left: 54px; }
+.key {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  border-bottom-width: 3px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.key b { font-family: var(--font-ko); font-size: 1.35rem; }
+.key small { position: absolute; top: 3px; right: 5px; font-family: var(--font-ko); font-size: 0.7rem; color: var(--muted); }
+.key i { position: absolute; bottom: 2px; left: 5px; font-size: 0.6rem; font-style: normal; color: var(--muted); }
+.key.cons b { color: var(--blue); }
+.key.vowel b { color: var(--accent); }
+.key.shift { width: 96px; font-size: 0.8rem; }
+.key.space { width: 260px; font-size: 0.8rem; color: var(--muted); }
+.key.next { border-color: var(--good); background: var(--good-bg); box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 30%, transparent); }
+.key.on { background: color-mix(in srgb, var(--blue) 18%, var(--panel)); }
+.key.hit { transform: translateY(2px); }
+.key.wrong { border-color: var(--bad); background: var(--bad-bg); }
+
+#summary { margin-top: 20px; }
+@media (max-width: 620px) {
+  .key { width: 30px; height: 44px; }
+  .key b { font-size: 1.05rem; }
+  .key i { display: none; }
+  .krow { gap: 3px; }
+  .krow.r1 { margin-left: 10px; }
+  .krow.r2 { margin-left: 26px; }
+  .key.space { width: 160px; }
+  .key.shift { width: 70px; }
+  .target { font-size: 2.6rem; }
+}

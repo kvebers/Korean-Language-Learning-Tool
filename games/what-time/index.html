@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Time Is It? · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>What Time Is It? <span class="ko">몇 시예요?</span></h1>
+  </header>
+
+  <main class="wrap">
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section id="start" class="panel start">
+      <p>Time mixes both number systems: <b>hours are native</b> (<span class="ko">세 시</span>),
+        <b>minutes are Sino-Korean</b> (<span class="ko">이십 분</span>), so 3:20 is <span class="ko">세 시 이십 분</span>
+        and 3:30 can be <span class="ko">세 시 반</span>. Dates are all Sino-Korean: <span class="ko">삼월 십오일</span>,
+        but June and October drop a sound: <span class="ko">유월</span>, <span class="ko">시월</span>.</p>
+      <button class="btn primary big" id="start-btn">Start</button>
+    </section>
+
+    <section id="play" class="panel" hidden>
+      <div class="hud">
+        <span>Question <b id="qnum">1 / 10</b></span>
+        <span>Score <b id="score">0</b></span>
+        <span class="spacer"></span>
+        <button class="btn" id="replay" hidden>🔊</button>
+      </div>
+      <p class="center ko ask" id="ask"></p>
+      <div class="scene" id="scene"></div>
+      <div id="options" class="g-options"></div>
+      <p id="feedback" class="g-feedback" aria-live="polite"></p>
+      <div class="g-row"><button class="btn primary" id="next" hidden>Next →</button></div>
+    </section>
+
+    <div id="summary" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/korean.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

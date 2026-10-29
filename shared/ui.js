@@ -13,6 +13,8 @@
         ["1", "Tier 1 · Basic alphabet"],
         ["2", "Tier 2 · Doubles & compounds"],
         ["all", "All letters"],
+        ["syl", "Syllables · 가 나 다"],
+        ["batchim", "Syllables with 받침 · 한 국 말"],
       ],
     },
     {
@@ -47,11 +49,16 @@
     return String(s).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
   }
 
-  // Renders <select>s for the common filters plus game-specific `extra` fields.
-  // Returns the current values; calls onChange(values) on every change.
-  function settingsBar(el, game, extra, onChange) {
+  // Renders <select>s for the common letter filters (unless common: false) plus
+  // game-specific `extra` fields. Returns the current values; calls onChange(values) on every change.
+  function settingsBar(el, game, extra, onChange, { common = true } = {}) {
     const stored = loadAll();
-    const fields = [...COMMON.map((f) => ({ ...f, storeKey: f.key })), ...extra.map((f) => ({ ...f, storeKey: `${game}.${f.key}` }))];
+    // ?tier=syl etc. in the URL presets a setting for this visit, so the home page can link
+    // straight to a game's syllable mode without changing what the player chose elsewhere.
+    const params = new URLSearchParams(location.search);
+    for (const f of COMMON) if (params.has(f.key)) stored[f.key] = params.get(f.key);
+    for (const f of extra) if (params.has(f.key)) stored[`${game}.${f.key}`] = params.get(f.key);
+    const fields = [...(common ? COMMON : []).map((f) => ({ ...f, storeKey: f.key })), ...extra.map((f) => ({ ...f, storeKey: `${game}.${f.key}` }))];
     const values = {};
 
     el.innerHTML = "";
@@ -90,9 +97,32 @@
     }
   }
 
+  // Works for letters, syllables and words (they all have char / roman / say).
   function letterChip(l) {
     return `<button class="chip" data-say="${esc(l.say)}" title="Play sound">
-      <span class="chip-char">${esc(l.char)}</span><span class="chip-roman">${esc(l.roman)}</span></button>`;
+      <span class="chip-char">${esc(l.emoji ? `${l.emoji} ${l.char}` : l.char)}</span><span class="chip-roman">${esc(l.roman)}</span></button>`;
+  }
+
+  // Word level filter shared by the vocabulary games.
+  const LEVEL_FIELD = {
+    key: "level",
+    label: "Words",
+    value: "all",
+    options: [
+      ["all", "All my words"],
+      ["A1", "A1 only"],
+      ["A2", "A2 only"],
+      ["A", "A1 + A2"],
+    ],
+  };
+
+  // A "Unlocked words: 30 · learn 4 more for the next 10" line for word games.
+  async function vocabStatus(el) {
+    const { info, words } = await KLT.vocab.state();
+    el.innerHTML = `<p class="muted vocab-status">📚 <b>${info.unlocked}</b> of ${words.length} words unlocked ·
+      ${info.needed ? `learn <b>${info.needed}</b> more to unlock the next ${KLT.progress.VOCAB_STEP}` : "all unlocked"}
+      · <a href="../../library/index.html">Word library</a></p>`;
+    return info;
   }
 
   // End-of-round panel. stats: [[label, value]], missed: letter objects.
@@ -111,10 +141,29 @@
     el.hidden = false;
   }
 
+  // Records the round and shows the summary. missed: items (letters, syllables or words).
+  function endRound(el, game, { score, total, startedAt, missed = [], onAgain, stats = [], title }) {
+    const durationMs = Date.now() - startedAt;
+    KLT.sfx.win();
+    KLT.progress.session(game, { score, total, durationMs, missed: [...new Set(missed.map((m) => m.id || m.char))] });
+    summary(el, {
+      title: title || (score === total ? "Perfect round! 완벽해요!" : "Round complete"),
+      stats: [
+        ["Score", `${score} / ${total}`],
+        ["Accuracy", `${total ? Math.round((score / total) * 100) : 0}%`],
+        ["Time", formatTime(durationMs)],
+        ...stats,
+      ],
+      missed,
+      onAgain,
+    });
+    el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
   function formatTime(ms) {
     const s = Math.round(ms / 1000);
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   }
 
-  KLT.ui = { settingsBar, voiceNotice, summary, letterChip, esc, formatTime };
+  KLT.ui = { settingsBar, voiceNotice, summary, endRound, letterChip, esc, formatTime, LEVEL_FIELD, vocabStatus };
 })();

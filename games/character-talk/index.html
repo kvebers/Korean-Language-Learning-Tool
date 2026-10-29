@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Character Talk · Korean</title>
+  <link rel="stylesheet" href="../../shared/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../../index.html">← All games</a>
+    <h1>Character Talk <span class="ko">대화</span></h1>
+  </header>
+
+  <main class="wrap">
+    <details class="panel setup" id="setup">
+      <summary><b>⚙️ AI settings</b> <span class="muted" id="setup-status"></span></summary>
+      <p>Conversations use Google's Gemini with <b>your own API key</b>. Get a free one at
+        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+        The key is saved only in this browser and sent only to Google.</p>
+      <form id="key-form" class="key-form">
+        <label><span>API key</span><input id="key" type="password" class="g-input" autocomplete="off" placeholder="AIza…"></label>
+        <label><span>Model</span><input id="model" class="g-input" autocomplete="off"></label>
+        <div class="g-row left">
+          <button class="btn primary">Save</button>
+          <button class="btn" type="button" id="forget">Forget key</button>
+        </div>
+      </form>
+      <p class="muted small" id="usage"></p>
+    </details>
+
+    <div id="settings" class="settings"></div>
+    <div id="notice"></div>
+
+    <section class="panel chat-panel">
+      <div class="chat-head">
+        <div class="avatar" id="avatar"></div>
+        <div><b id="char-name"></b><div class="muted small" id="char-desc"></div></div>
+        <span class="spacer"></span>
+        <button class="btn" id="reset" title="Start a new conversation">↺ New chat</button>
+      </div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="suggest" id="suggest"></div>
+      <form class="composer" id="composer">
+        <button class="btn" type="button" id="mic" title="Speak (Korean)">🎤</button>
+        <input id="msg" class="g-input ko" autocomplete="off" lang="ko" placeholder="한국어로 말해 보세요…">
+        <button class="btn primary" id="send">Send</button>
+      </form>
+      <div class="helpbar">
+        <button class="btn" id="help-btn">🆘 Help me say…</button>
+        <button class="btn" id="slower">🐢 I don't understand</button>
+        <span class="muted small">Tap any Korean word to look it up.</span>
+      </div>
+      <form class="helpform" id="help-form" hidden>
+        <input id="help-input" class="g-input" autocomplete="off" placeholder="What do you want to say? (in English)">
+        <button class="btn primary">Translate</button>
+      </form>
+      <div id="help-out"></div>
+    </section>
+    <div class="lookup" id="lookup" hidden></div>
+  </main>
+
+  <script src="../../shared/config.js"></script>
+  <script src="../../shared/hangul.js"></script>
+  <script src="../../shared/sound.js"></script>
+  <script src="../../shared/progress.js"></script>
+  <script src="../../shared/ui.js"></script>
+  <script src="../../shared/words/a1.js"></script>
+  <script src="../../shared/words/a2.js"></script>
+  <script src="../../shared/words/b1.js"></script>
+  <script src="../../shared/words/b2.js"></script>
+  <script src="../../shared/vocab.js"></script>
+  <script src="../../shared/gemini.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

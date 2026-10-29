@@ -1,0 +1,47 @@
+.board { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 10px; margin-bottom: 10px; }
+.tile {
+  flex: 0 0 46px;
+  height: 46px;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  color: var(--muted);
+}
+.tile.passed { border-color: var(--good); background: var(--good-bg); }
+.tile.here { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+.tile.here::after { content: "🧑"; position: absolute; transform: translateY(-34px); font-size: 1.1rem; }
+.tile { position: relative; }
+.tile.goal { border-style: dashed; }
+
+.scene { text-align: center; margin: 6px 0 16px; }
+.clock { color: var(--muted); font-weight: 600; }
+.action { font-size: 5rem; line-height: 1.3; height: 7rem; display: grid; place-items: center; }
+.hint { font-size: 1.15rem; font-weight: 600; color: var(--blue); min-height: 1.5em; }
+
+.anim { display: inline-block; }
+.anim.bob { animation: bob 1s ease-in-out infinite; }
+.anim.ring { animation: ring 0.5s ease-in-out infinite; }
+.anim.shake { animation: shake 0.6s ease-in-out infinite; }
+.anim.walk { animation: walk 1.6s ease-in-out infinite; }
+.anim.lift { animation: lift 1.2s ease-in-out infinite; }
+.anim.sweep { animation: sweep 1s ease-in-out infinite; }
+.anim.glow { animation: glow 1.4s ease-in-out infinite; }
+.anim.sleep { animation: sleep 2.4s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-10px); } }
+@keyframes ring { 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
+@keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+@keyframes walk { 0%, 100% { transform: translateX(-30px); } 50% { transform: translateX(30px); } }
+@keyframes lift { 50% { transform: translateY(-18px) scale(1.05); } }
+@keyframes sweep { 0%, 100% { transform: rotate(-20deg); } 50% { transform: rotate(20deg); } }
+@keyframes glow { 50% { filter: brightness(1.5); transform: scale(1.06); } }
+@keyframes sleep { 50% { transform: scale(0.92) rotate(-6deg); opacity: 0.7; } }
+@media (prefers-reduced-motion: reduce) { .anim { animation: none !important; } }
+
+.vcard { display: flex; gap: 6px; }
+.vcard .pick { flex: 1; }
+.vcard .say { padding: 0 12px; }
+
+#summary { margin-top: 20px; }

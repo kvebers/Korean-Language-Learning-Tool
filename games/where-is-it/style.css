@@ -1,0 +1,32 @@
+.positions { font-size: 1.05rem; }
+.ask { font-size: 1.5rem; font-weight: 700; text-align: center; margin: 0; }
+.center { text-align: center; margin: 2px 0 10px; }
+.scene-wrap { display: flex; justify-content: center; margin-bottom: 14px; }
+
+/* the reference object sits in the middle; the thing is placed around it */
+.scene {
+  position: relative;
+  width: 220px;
+  height: 200px;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--bg) 70%, color-mix(in srgb, var(--ink) 8%, var(--bg)) 70%);
+  border: 1px solid var(--line);
+}
+.scene .ref { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); font-size: 88px; line-height: 1; z-index: 2; }
+.scene .thing { position: absolute; font-size: 40px; line-height: 1; transform: translate(-50%, -50%); }
+.at-위 { left: 50%; top: 22%; z-index: 3; }
+.at-아래 { left: 50%; top: 90%; z-index: 3; font-size: 32px !important; }
+.at-앞 { left: 56%; top: 74%; z-index: 4; font-size: 54px !important; }
+.at-뒤 { left: 63%; top: 33%; z-index: 1; font-size: 32px !important; opacity: 0.85; }
+.at-옆 { left: 88%; top: 66%; z-index: 3; }
+.at-안 { left: 50%; top: 62%; z-index: 3; font-size: 30px !important; }
+.scene:has(.at-안) .ref { opacity: 0.55; }
+
+.scene.small { width: 120px; height: 110px; }
+.scene.small .ref { font-size: 48px; }
+.scene.small .thing { font-size: 22px; }
+.scene.small .at-앞 { font-size: 30px !important; }
+.scene.small .at-아래, .scene.small .at-뒤, .scene.small .at-안 { font-size: 18px !important; }
+
+.g-option.pic { display: flex; justify-content: center; padding: 8px; }
+#summary { margin-top: 20px; }
